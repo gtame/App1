@@ -1,0 +1,2 @@
+﻿ReturnCommand="{Binding GetOrdenCommand}" ReturnCommandParameter="{Binding Source={x:Reference txtOrden}, Path=Text}" 
+ReturnCommand="{Binding GetUbicacionCommand}" ReturnCommandParameter="{Binding Source={x:Reference txtUbicacion}, Path=Text}"

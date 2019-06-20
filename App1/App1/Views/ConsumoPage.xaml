@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<!-- USVMQF-->
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:App1.Extensions;assembly=App1"
+             x:Class="App1.Views.ConsumoPage">
+
+    <Grid>
+        <ScrollView>
+            <StackLayout Spacing="0" Padding="0"  >
+
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Orden:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
+                    <Entry x:Name="txtOrden" HorizontalOptions="FillAndExpand" Keyboard="Numeric"  Text="{Binding Item.Ofs.Codigo }"  IsEnabled="{Binding IsNewMode}" Placeholder="[Orden]" PlaceholderColor="Red"     local:FocusExtension.Focus="{Binding OrdenIsFocused}"   />
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal" >
+                    <Entry   HorizontalOptions="FillAndExpand" Text="{Binding Item.Ofs.Descripcion}" Placeholder="[No hay orden seleccionada]"  IsEnabled="false"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Ubicacion:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
+                    <Entry  x:Name="txtUbicacion" HorizontalOptions="FillAndExpand" Keyboard="Numeric"  Text="{Binding Item.Bulto.Ubicacion.Codigo}" Placeholder="[Ubicacion]" PlaceholderColor="Red"    local:FocusExtension.Focus="{Binding UbicacionIsFocused}"  IsEnabled="{Binding IsNewMode}" />
+                </StackLayout>
+
+                <StackLayout Orientation="Vertical" >
+
+                    <Entry HorizontalOptions="FillAndExpand"  Text="{Binding Item.Bulto.Ubicacion.Descripcion}" Placeholder="[No hay ubicacion seleccionada]"  IsEnabled="false"/>
+                    <StackLayout Orientation="Horizontal" >
+                        <Entry HorizontalOptions="FillAndExpand" Text="{Binding Item.Bulto.Articulo.Codigo}" Placeholder="[Articulo]"  IsEnabled="false"/>
+                        <Entry HorizontalOptions="FillAndExpand" Text="{Binding Item.Bulto.Lote}" Placeholder="[Lote]"  IsEnabled="false"/>
+                    </StackLayout>
+
+                    <Entry HorizontalOptions="FillAndExpand" Text="{Binding Item.Bulto.Articulo.Descripcion }" Placeholder="[Articulo seleccionado]"  IsEnabled="false"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal">
+                    <Label   Text="Cantidad:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
+                    <Entry x:Name="txtCantidad" HorizontalOptions="FillAndExpand" Text="{Binding Item.Cantidad}"  Keyboard="Numeric" Placeholder="[Cantidad]" PlaceholderColor="Red"    IsEnabled="{Binding IsNewMode}" local:FocusExtension.Focus="{Binding CantidadIsFocused}"/>
+                    <Picker x:Name="cbUM"  Title="UM"  TextColor="Red" HorizontalOptions="FillAndExpand" >
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Metros</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </StackLayout>
+
+
+                <Button Command="{Binding SubmitCommand}" CommandParameter="{Reference txtOrden}"   Text="Registrar"  FontSize="Large" HorizontalOptions="FillAndExpand"   IsVisible="{Binding IsNewMode}"  />
+
+                <Button Command="{Binding CleanCommand}"  CommandParameter="{Reference txtOrden}"  Text="Limpiar"  FontSize="Large" HorizontalOptions="FillAndExpand" IsVisible="{Binding IsNewMode}" />
+
+                <Button Clicked="Deshacer_Clicked"  Text="Deshacer"  FontSize="Large" HorizontalOptions="FillAndExpand" IsVisible="{Binding IsViewMode}" />
+
+            </StackLayout>
+
+        </ScrollView>
+
+        <ActivityIndicator x:Name="activityIndicator"  IsRunning="{Binding IsRunning}" VerticalOptions="Center" HorizontalOptions="Center" />
+
+    </Grid>
+ 
+
+</ContentPage>
+    
