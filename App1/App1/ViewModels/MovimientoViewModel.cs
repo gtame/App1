@@ -13,8 +13,13 @@ namespace App1.ViewModels
     public class MovimientoViewModel: BaseViewModel
     {
 
+         
+
         public ICommand SubmitCommand { protected set; get; }
+
         public ICommand CleanCommand { protected set; get; }
+
+        public ICommand DeleteCommand { protected set; get; }
 
         public ICommand GetOrdenCommand { protected set; get; }
 
@@ -30,12 +35,9 @@ namespace App1.ViewModels
 
         private Movimiento _movimiento;
 
-        public Movimiento Item { get { return _movimiento; }
-            set
-            {
-                SetProperty(ref _movimiento, value);
-            }
-
+        public Movimiento Item {
+            get { return _movimiento; }
+            set{  SetProperty(ref _movimiento, value); }
         }
 
 
@@ -61,6 +63,7 @@ namespace App1.ViewModels
 
             if (items.Count == 1)
             {
+
                 Item.Bulto = items[0];
                 Item.Cantidad = Item.Bulto.Cantidad;
                 CantidadIsFocused = true;
@@ -77,17 +80,23 @@ namespace App1.ViewModels
 
         public MovimientoViewModel(Movimiento item = null)
         {
-            SubmitCommand = new Command<View>(OnSubmit);
-            CleanCommand = new Command<View>(OnClean);
+            SubmitCommand = new Command(OnSubmit);
+            CleanCommand = new Command(OnClean);
             GetOrdenCommand = new Command<string>(OnGetOrden);
             GetUbicacionCommand = new Command<string>(OnGetUbicacion);
+
+            DeleteCommand = new Command(OnDelete);
             if (item == null)
             {
                 Item = new Movimiento();
                 IsNewMode = true;
+                Title = "Registrar Consumo";
             }
             else
+            {
                 Item = item;
+                Title = "Eliminar consumo";
+            }
         }
 
 
@@ -95,14 +104,17 @@ namespace App1.ViewModels
         public bool OrdenIsFocused {
             get { return _ordenIsFocused; }
             set {
-           
-                    
+
+                    if (value)
+                    {
+                        CantidadIsFocused = false;
+                        UbicacionIsFocused = false;
+                    }
                     _ordenIsFocused = value;
                     OnPropertyChanged();
                 
             }
         }
-
 
         private bool _ubicacionIsFocused;
         public bool UbicacionIsFocused
@@ -110,9 +122,13 @@ namespace App1.ViewModels
             get { return _ubicacionIsFocused; }
             set
             {
-                 
 
-                    _ubicacionIsFocused = value;
+                if (value)
+                {
+                    CantidadIsFocused = false;
+                    OrdenIsFocused = false;
+                }
+                _ubicacionIsFocused = value;
                     OnPropertyChanged();
                 
             }
@@ -126,6 +142,11 @@ namespace App1.ViewModels
             set
             {
 
+                    if (value)
+                    {
+                        UbicacionIsFocused = false;
+                        OrdenIsFocused = false;
+                    }
                     _cantidadIsFocused = value;
                     OnPropertyChanged();
              
@@ -144,22 +165,70 @@ namespace App1.ViewModels
             Of ordenDB = await GetOfAsync(orden);
             
         }
-        public async void OnSubmit(View view)
+        public async void OnSubmit()
         {
             IsRunning = true;
-            await Task.Delay(2000);
-            OrdenIsFocused = true;
-            IsRunning = false;
+
+            try
+            {
+                bool result = await DataStore.AddMovimientoAsync(Item);
+
+
+                Item = new Movimiento();
+                //await Task.Delay(2000);
+                OrdenIsFocused = true;
+                
+            }
+            catch(System.Exception ex)
+            {
+                await AlertHelper.ShowError(ex.Message);
+            }
+            finally
+            {
+                IsRunning = false;
+            }
         }
 
 
 
-        public async void OnClean(View view)
+        public async void OnDelete()
+        {
+            bool ok = await AlertHelper.DisplayAlert("Deshacer", "¿Esta seguro que desea deshacer el consumo?", "Ejecutar", "Cancelar");
+
+
+
+            if (ok)
+            {
+
+
+
+
+                IsRunning = true;
+
+                try
+                {
+                    bool result = await DataStore.DeleteMovimientoAsync(Item.CodMov);
+                    //model delete
+                    await Navigation.PopAsync();
+
+                }
+                catch (System.Exception ex)
+                {
+                    await AlertHelper.ShowError(ex.Message);
+                }
+                finally
+                {
+                    IsRunning = false;
+                }
+            }
+        }
+
+        public async void OnClean()
         {
             IsRunning = true;
             Item = new Movimiento();
 
-            await Task.Delay(2000);
+            //await Task.Delay(2000);
             //view?.Focus();
             OrdenIsFocused = true;
             IsRunning = false;

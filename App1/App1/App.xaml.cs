@@ -13,11 +13,12 @@ namespace App1
         public static string EVENT_LAUNCH_LOGIN_PAGE = "EVENT_LAUNCH_LOGIN_PAGE";
         public static string EVENT_LAUNCH_MAIN_PAGE = "EVENT_LAUNCH_MAIN_PAGE";
         public static string EVENT_LAUNCH_BULTOS_PAGE = "EVENT_LAUNCH_SELECT_BULTOS_PAGE";
+        public static string EVENT_SELECTED_BULTO = "EVENT_SELECTED_BULTO";
 
 
         //TODO: Replace with *.azurewebsites.net url after deploying backend to Azure
-        public static string AzureBackendUrl = "http://localhost:5000/Almacen";
-        public static bool UseMockDataStore = true;
+        public static string AzureBackendUrl = "http://192.168.1.7:5000/api/Almacen";
+        public static bool UseMockDataStore = false;
         public static bool IsUserLoggedIn { get; set; }
 
 
@@ -30,6 +31,8 @@ namespace App1
             else
                 DependencyService.Register<AzureDataStore>();
 
+            DependencyService.Register<AlertHelper>();
+
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) => {
                 System.Exception ex = (System.Exception)args.ExceptionObject;
@@ -38,8 +41,10 @@ namespace App1
 
             MessagingCenter.Subscribe<object>(this, EVENT_LAUNCH_LOGIN_PAGE, SetLoginPageAsRootPage);
             MessagingCenter.Subscribe<object>(this, EVENT_LAUNCH_MAIN_PAGE, SetMainPageAsRootPage);
-            
-            MainPage = new MainPage();
+
+
+            MainPage = new LoginPage();
+            //MainPage = new MainPage();
         }
         private void SetLoginPageAsRootPage(object sender)
         {

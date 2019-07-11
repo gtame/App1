@@ -6,7 +6,7 @@ using App1.Models;
 
 namespace App1.Services
 {
-    public class MockDataStore : IDataStore<Item>
+    public class MockDataStore : IDataStore
     {
 
         List<Movimiento> movimientos;
@@ -117,7 +117,8 @@ namespace App1.Services
         public async Task<IEnumerable<Bulto>> GetBultosByUbicacionAsync(string ubicacion)
         {
             await Task.Delay(2000);
-            return bultos.Where((Bulto arg) => arg.Ubicacion.Codigo == ubicacion);
+            //arg.Ubicacion.Codigo == ubicacion
+            return await Task.FromResult< IEnumerable < Bulto >>( bultos.Where((Bulto arg) => arg.Ubicacion.Codigo==ubicacion));
 
         }
 

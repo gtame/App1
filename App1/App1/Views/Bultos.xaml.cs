@@ -18,28 +18,29 @@ namespace App1.Views
     {
         BultosViewModel viewModel;
 
-        public BultosPage(IEnumerable<Bulto> bultos )
+       
+
+        public BultosPage(IEnumerable<Bulto> bultos)
         {
-            InitializeComponent();
             BindingContext = viewModel = new BultosViewModel(bultos);
+            InitializeComponent();
+            
         }
 
         public BultosPage()
         {
-            InitializeComponent();
+           
             BindingContext = viewModel = new BultosViewModel();
+            viewModel.Ubicacion  = "001";
+            InitializeComponent();
+
+
         }
 
         async void OnItemSelected(object sender, SelectedItemChangedEventArgs args)
         {
-            var item = args.SelectedItem as Movimiento;
-            if (item == null)
-                return;
-
-            await Navigation.PushAsync(new ConsumoPage(item));
-
-            // Manually deselect item.
-            ItemsListView.SelectedItem = null;
+            viewModel.SelectedBulto= args.SelectedItem as Bulto;
+            await Navigation.PopModalAsync();
         }
 
         async void AddItem_Clicked(object sender, EventArgs e)
@@ -47,12 +48,13 @@ namespace App1.Views
             await Navigation.PushAsync(new ConsumoPage() );
         }
 
-        protected override void OnAppearing()
+        protected async override void OnAppearing()
         {
             base.OnAppearing();
-
-            if (viewModel.Bultos.Count() == 0)
-                viewModel.LoadBultosByUbicacionCommand.Execute();
+            if (viewModel.Bultos.Count()==0)
+                viewModel.LoadBultosByUbicacionCommand.Execute(null);
         }
+
+
     }
 }

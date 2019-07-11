@@ -16,12 +16,8 @@ namespace App1.Views
         {
             var vm = new LoginViewModel();
             this.BindingContext = vm;
-            vm.DisplayInvalidLoginPrompt += () => DisplayAlert("Error", "Invalid Login, try again", "OK");
-            vm.SuccessLogin +=  () =>
-            {
-                MessagingCenter.Send<object>(this, App.EVENT_LAUNCH_MAIN_PAGE);
-            };
 
+            
             InitializeComponent();
             
 

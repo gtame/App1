@@ -30,61 +30,54 @@
                         <StackLayout Padding="10">
 
                             <StackLayout  Orientation="Horizontal">
-                             <Label 
-                                Text="Orden:" 
-                                LineBreakMode="NoWrap" 
-                                Style="{DynamicResource ListItemTextStyle}" 
-                                FontAttributes="Bold"
-                                FontSize="16" 
-                                />
+                        
                             <Label 
                                 Text="{Binding Ofs.Codigo}" 
                                 LineBreakMode="NoWrap" 
                                 Style="{DynamicResource ListItemTextStyle}" 
-                                FontSize="16" />
+                                FontSize="10" />
                             <Label 
                                 Text="{Binding Ofs.Descripcion}" 
                                 LineBreakMode="NoWrap" 
                                 Style="{DynamicResource ListItemTextStyle}" 
-                                FontSize="16" />
+                                FontSize="10" />
                             </StackLayout>
 
                             <Label 
                                 Text="{Binding Bulto.Descripcion}" 
                                 LineBreakMode="NoWrap" 
                                 Style="{DynamicResource ListItemTextStyle}" 
-                                FontSize="16" />
+                                FontSize="10" />
 
                                  <StackLayout Orientation="Horizontal">
-                                    <Label 
-                                        Text="Cantidad:" 
+
+                    
+                                     
+                                     
+                                <Label 
+                                        Text="{Binding Cantidad , StringFormat='Cantidad: {0}'}" 
                                         LineBreakMode="NoWrap" 
                                         Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16" FontAttributes="Bold" />
-                            
-                                    <Label 
-                                        Text="{Binding Cantidad}" 
-                                        LineBreakMode="NoWrap" 
-                                        Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16"  />
+                                        FontSize="10"  />
                                 <Label 
                                         Text="{Binding UM}" 
                                         LineBreakMode="NoWrap" 
                                         Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16"  />
+                                        FontSize="10"  />
 
 
                                 <Label 
-                                        Text="Fecha:" 
+                                        Text="{Binding Lote  , StringFormat='Lote: {0}'}" 
                                         LineBreakMode="NoWrap" 
                                         Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16" FontAttributes="Bold" />
+                                        FontSize="10"  />
+
 
                                 <Label 
-                                        Text="{Binding Fecha}" 
+                                        Text="{Binding Fecha,  StringFormat='{0:dd/MM/yyyy}'}" 
                                         LineBreakMode="NoWrap" 
                                         Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16"  />
+                                        FontSize="10"  />
 
                             </StackLayout>
 

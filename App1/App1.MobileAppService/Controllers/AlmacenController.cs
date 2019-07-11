@@ -4,6 +4,9 @@ using LogiData;
 using App1.Models;
 using LogiData.Data;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Data;
 
 namespace App1.Controllers
 {
@@ -19,45 +22,14 @@ namespace App1.Controllers
         {
             ItemRepository = itemRepository;
             Configuration = configuration;
-            DataContext.ConnectionString= Configuration.GetConnectionString("logiteva");
+
+            if (DataContext.ConnectionString ==null)
+                DataContext.ConnectionString= Configuration.GetConnectionString("logiteva");
 
         }
+         
 
-
-
-        //private   void LogonDB(string user, string pwd)
-        //{
-
-        //    using (System.Data.SqlClient.SqlConnection sql = new System.Data.SqlClient.SqlConnection("Data Source=eszazsharepro01;Initial Catalog=ALMACEN;Persist Security Info=True;User ID=dbalmacen;Password=dbalmacen12345.;Application Name=LogiTeva desktop;Connection Timeout=300"))
-        //    {
-        //        sql.Open();
-        //        sql.Close();
-
-        //    }
-        //    string sqls = 
-        //    LogiData.DataContext.ConnectionString = "";
-        //    System.Data.SqlClient.SqlConnection sqlConnection = DataContext.Connection;
-
-        //    dsUsuarios.USUARIOSDataTable dtUser = new dsUsuarios.USUARIOSDataTable();
-
-        //    dtUser.FillByUSUARIO(user);
-            
-        //    if (dtUser.Rows.Count == 1)
-        //    {
-        //        if (!dtUser[0].CONTRASEÑA.Equals(pwd))
-        //            throw new System.Exception("Contraseña incorrecta");
-        //        else if (!dtUser[0].ACTIVO)
-        //            throw new System.Exception("El usuario esta bloqueado");
-        //    }
-        //    else
-        //        throw new System.Exception("Nombre de usuario incorrecto");
-
-  
-        //    dtUser = null;
-        //}
-
-
-        [HttpGet("Logon")]
+        [HttpGet("logon")]
         public IActionResult Logon(string username,string password)
         {
             try
@@ -72,65 +44,284 @@ namespace App1.Controllers
 
             
         }
-        
 
-        [HttpGet]
-        public IActionResult List()
+
+        [HttpGet("bultos")]
+        public IActionResult GetByCodUbicacion(string codubi)
         {
+
+            dsAlmacen.BULTOSDataTable dtBultos = new dsAlmacen.BULTOSDataTable();
+            dtBultos.FillByUbicacion(codubi);
+            if (dtBultos.Count == 0)
+                return NotFound();
+            else
+            {
+
+                List<Bulto> lstMov = new List<Bulto>();
+                foreach (dsAlmacen.BULTOSRow row in dtBultos.Rows)
+                {
+                    lstMov.Add(ParseBulto(row));
+                }
+
+
+                string JSONresult;
+                JSONresult = JsonConvert.SerializeObject(lstMov);
+                return StatusCode(200, JSONresult);
+            }
             
-
-            return Ok(ItemRepository.GetAll());
         }
 
-        [HttpGet("{id}")]
-        public Item GetItem(string id)
+        [HttpGet("articulo")]
+        public IActionResult GetArticuloBySKU(string sku)
         {
-            Item item = ItemRepository.Get(id);
-            return item;
-        }
-
-        [HttpPost]
-        public IActionResult Create([FromBody]Item item)
-        {
-            try
+            dsAlmacen.ARTICULOSDataTable dtArticulos = new dsAlmacen.ARTICULOSDataTable();
+            dtArticulos.FillByORACLE_CODE(sku);
+            if (dtArticulos.Count == 0)
+                return NotFound();
+            else
             {
-                if (item == null || !ModelState.IsValid)
+                string JSONresult;
+                JSONresult = JsonConvert.SerializeObject(Articulo.Parse(dtArticulos[0]));
+                return StatusCode(200, JSONresult);
+            }
+        }
+
+
+
+        [HttpGet("ofs")]
+        public IActionResult GetOfsByCodigo(string orden)
+        {
+            dsOfs.OFSDataTable dtOfs = new dsOfs.OFSDataTable();
+            dtOfs.FillByOfs(int.Parse(orden));
+            if (dtOfs.Count == 0)
+                return NotFound();
+            else
+            {
+                string JSONresult;
+                JSONresult = JsonConvert.SerializeObject(Orden.Parse( dtOfs[0]));
+                return StatusCode(200, JSONresult);
+            }
+        }
+
+
+        [HttpGet("movimiento/{movimiento}")]
+        public IActionResult GetMovimientoByCodigo(int movimiento)
+        {
+            dsAlmacen.MOVIMIENTOSDataTable dtMovimientos = new dsAlmacen.MOVIMIENTOSDataTable();
+
+            dtMovimientos.FillByCODMOV(movimiento);
+            if (dtMovimientos.Count == 0)
+                return NotFound();
+            else
+            {
+                string JSONresult;
+               
+
+                JSONresult = JsonConvert.SerializeObject(ParseMovimiento(dtMovimientos[0]));
+                return StatusCode(200, JSONresult);
+            }
+        }
+
+       
+
+
+         private Bulto ParseBulto(dsAlmacen.BULTOSRow row)
+        {
+            Bulto bulto = Bulto.Parse(row);
+
+            dsAlmacen.ARTICULOSDataTable dtArticulo = new dsAlmacen.ARTICULOSDataTable();
+            dtArticulo.FillByORACLE_CODE(row.ARTICULO);
+            if (dtArticulo.Count == 1)
+                bulto.Articulo = Articulo.Parse(dtArticulo[0]);
+
+            dsAlmacen.UBICACIONESDataTable dtUbicacion = new dsAlmacen.UBICACIONESDataTable();
+            dtUbicacion.FillByCODUBI(bulto.Ubicacion.Codigo);
+
+            if (dtUbicacion.Count ==1 )
+                bulto.Ubicacion = Ubicacion.Parse(dtUbicacion[0]);
+
+            return bulto;
+        }
+
+        private Movimiento ParseMovimiento(dsAlmacen.MOVIMIENTOSRow row)
+        {
+            Movimiento mov = Movimiento.Parse(row);
+
+            dsAlmacen.BULTOSDataTable dtBultos = new dsAlmacen.BULTOSDataTable();
+            dtBultos.FillByCODBULTO(mov.BultoId);
+            if (dtBultos.Count == 1)
+            {
+                mov.Articulo = dtBultos[0].ARTICULO;
+                mov.Lote = dtBultos[0].LOTE;
+                mov.Descripcion = dtBultos[0].TEXT;
+
+                 
+            }
+
+
+            dsAlmacen.UBICACIONESDataTable dtUbicacion = new dsAlmacen.UBICACIONESDataTable();
+            dtUbicacion.FillByCODUBI(mov.UbicacionCode);
+
+            if (dtUbicacion.Count == 1)
+                mov.Ubicacion = Ubicacion.Parse(dtUbicacion[0]);
+
+            return mov;
+        }
+
+
+
+        private Movimiento ParseSQLRow(DataRow row)
+        {
+            Movimiento mov = new Movimiento()
+            {
+                Articulo = (string)row["ARTICULO"],
+                Descripcion = (string)row["TEXT"],
+                BultoId = (int)row["CODBULTO"],
+                Cantidad = Decimal.ToInt32((decimal)row["CANTIDAD"]),
+                Fecha = (System.DateTime)row["F_MOV"],
+                Lote = (string)row["LOTE"],
+                Orden = (row["OFS"] == System.DBNull.Value ? null : row["OFS"].ToString()),
+                MovimientoId = (int)row["CODMOV"],
+                UserName = (string)row["TERMINAL"],
+                UbicacionCode = (string)row["CODUBI"]
+
+            };
+
+            dsAlmacen.UBICACIONESDataTable dtUbicacion = new dsAlmacen.UBICACIONESDataTable();
+            dtUbicacion.FillByCODUBI(mov.UbicacionCode);
+
+            if (dtUbicacion.Count == 1)
+            {
+                mov.Ubicacion = Ubicacion.Parse(dtUbicacion[0]);
+            }
+
+            if (mov.Orden != null)
+            {
+                dsOfs.OFSDataTable dtOfs = new dsOfs.OFSDataTable();
+                dtOfs.FillByOfs(int.Parse(mov.Orden));
+
+                if (dtOfs.Count == 1)
                 {
-                    return BadRequest("Invalid State");
+                    mov.Ofs = Orden.Parse(dtOfs[0]);
+                }
+            }
+
+            dsAlmacen.BULTOSDataTable dtBultos = new dsAlmacen.BULTOSDataTable();
+            dtBultos.FillByCODBULTO(mov.BultoId);
+
+            if (dtBultos.Count == 1)
+            {
+                mov.Bulto = ParseBulto(dtBultos[0]);
+
+                mov.Bulto.Ubicacion = mov.Ubicacion;
+            }
+
+
+            return mov;
+        }
+
+        [HttpGet("movimientos/{ubicacion}")]
+        public IActionResult GetMovimientos(string ubicacion, int toprows=10)
+        {
+            LogiData.Data.dsAlmacenTableAdapters.MOVIMIENTOSAdapter movimientoAdapter = new LogiData.Data.dsAlmacenTableAdapters.MOVIMIENTOSAdapter();
+
+            System.Data.DataTable dtMovimientos = movimientoAdapter.GetMovimientosHistorico(toprows, ubicacion);
+            if (dtMovimientos.Rows.Count > 0)
+            {
+                List<Movimiento> lstMov = new List<Movimiento>();
+                foreach (DataRow row in dtMovimientos.Rows)
+                {
+                    lstMov.Add(ParseSQLRow(row));
                 }
 
-                ItemRepository.Add(item);
-
+                string JSONresult;
+                JSONresult = JsonConvert.SerializeObject(lstMov);
+                return StatusCode(200, JSONresult);
             }
-            catch (Exception)
-            {
-                return BadRequest("Error while creating");
-            }
-            return Ok(item);
+            else
+                return NotFound();
         }
 
-        [HttpPut]
-        public IActionResult Edit([FromBody] Item item)
+        [HttpPost("addmovimiento/{username}")]
+        public IActionResult Create(string username,[FromBody]Movimiento item)
         {
+            int codMov = 0;
             try
             {
-                if (item == null || !ModelState.IsValid)
-                {
-                    return BadRequest("Invalid State");
-                }
-                ItemRepository.Update(item);
+
+                SourceDoc source = new SourceDoc();
+                source.Id = item.Orden;
+                source.Type = DocType.OFS;
+                source["OFS"] = item.Orden;
+                codMov = LogiData.GestionAlmacen.Salida(item.BultoId, item.Cantidad, username , false, "Consumo en linea", source);
+
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return BadRequest("Error while creating");
+                return BadRequest(e.Message.ToString());
             }
-            return NoContent();
+            return Ok(codMov);
         }
 
-        [HttpDelete("{id}")]
-        public void Delete(string id)
+        //[HttpPut]
+        //public IActionResult Edit([FromBody] Item item)
+        //{
+        //    try
+        //    {
+        //        if (item == null || !ModelState.IsValid)
+        //        {
+        //            return BadRequest("Invalid State");
+        //        }
+        //        ItemRepository.Update(item);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return BadRequest("Error while creating");
+        //    }
+        //    return NoContent();
+        //}
+
+        [HttpDelete("delmovimiento/{id}")]
+        public IActionResult Delete(string id,string username)
         {
-            ItemRepository.Remove(id);
+            int codMov = 0;
+            try
+            {
+
+                dsAlmacen.MOVIMIENTOSDataTable dtMovimientos = new dsAlmacen.MOVIMIENTOSDataTable();
+                dtMovimientos.FillByCODMOV(int.Parse(id));
+
+                
+
+                if (dtMovimientos.Count == 1)
+                {
+
+                    if (!dtMovimientos[0].ANULADO)
+                    {
+                        Movimiento movRetorno = ParseMovimiento(dtMovimientos[0]);
+
+                        dsAlmacen.BULTOSDataTable dtBultos = new dsAlmacen.BULTOSDataTable();
+                        dtBultos.FillByCODBULTO(dtMovimientos[0].CODBULTO);
+
+
+                        //Hace el retorno contra esa orden..
+                        codMov = LogiData.GestionAlmacen.Retorno(movRetorno.UbicacionCode, movRetorno.Articulo, movRetorno.Descripcion, movRetorno.Lote, (System.DateTime?)(dtBultos[0].IsCADUCIDADNull() ? null : (System.DateTime?)dtBultos[0].CADUCIDAD), movRetorno.Cantidad, true, false, username, movRetorno.Orden);
+
+                        //Lo marca como anulado
+                        dtMovimientos[0].ANULADO = true;
+                        dtMovimientos.Update();
+                    }
+                    else
+                        throw new System.Exception("El movimiento ya esta anulado");
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message.ToString());
+            }
+            return Ok(codMov);
         }
     }
 }

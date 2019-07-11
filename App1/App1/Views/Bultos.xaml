@@ -20,80 +20,34 @@
     </ContentPage.ToolbarItems>
 
     <StackLayout>
-        <ListView x:Name="ItemsListView"
-                ItemsSource="{Binding Items}"
+        <ListView x:Name="ItemsListView"  
+
+            ItemsSource="{Binding Bultos}"
                 VerticalOptions="FillAndExpand"
                 HasUnevenRows="true"
-                RefreshCommand="{Binding LoadItemsCommand}"
+                RefreshCommand="{Binding LoadBultosByUbicacionCommand}"
                 IsPullToRefreshEnabled="true"
                 IsRefreshing="{Binding IsBusy, Mode=OneWay}"
-                CachingStrategy="RecycleElement"
+                CachingStrategy="RecycleElementAndDataTemplate" 
                 ItemSelected="OnItemSelected">
+
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Padding="10">
+                            <Label Text = "{Binding Articulo.Descripcion}" />
 
-                            <StackLayout  Orientation="Horizontal">
-                             <Label 
-                                Text="Orden:" 
-                                LineBreakMode="NoWrap" 
-                                Style="{DynamicResource ListItemTextStyle}" 
-                                FontAttributes="Bold"
-                                FontSize="16" 
-                                />
-                            <Label 
-                                Text="{Binding Ofs.Codigo}" 
-                                LineBreakMode="NoWrap" 
-                                Style="{DynamicResource ListItemTextStyle}" 
-                                FontSize="16" />
-                            <Label 
-                                Text="{Binding Ofs.Descripcion}" 
-                                LineBreakMode="NoWrap" 
-                                Style="{DynamicResource ListItemTextStyle}" 
-                                FontSize="16" />
+                            <StackLayout Orientation="Horizontal">
+                                
+                                <Label Text = "Lote:" FontAttributes="Bold"/>
+                                <Label Text = "{Binding Lote}" />
+                                
+                                <Label Text = "Cantidad:" FontAttributes="Bold"/>
+                                <Label Text = "{Binding Cantidad}" />
+                                <Label Text = "{Binding UM}" />
+
                             </StackLayout>
-
-                            <Label 
-                                Text="{Binding Bulto.Descripcion}" 
-                                LineBreakMode="NoWrap" 
-                                Style="{DynamicResource ListItemTextStyle}" 
-                                FontSize="16" />
-
-                                 <StackLayout Orientation="Horizontal">
-                                    <Label 
-                                        Text="Cantidad:" 
-                                        LineBreakMode="NoWrap" 
-                                        Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16" FontAttributes="Bold" />
                             
-                                    <Label 
-                                        Text="{Binding Cantidad}" 
-                                        LineBreakMode="NoWrap" 
-                                        Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16"  />
-                                <Label 
-                                        Text="{Binding UM}" 
-                                        LineBreakMode="NoWrap" 
-                                        Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16"  />
-
-
-                                <Label 
-                                        Text="Fecha:" 
-                                        LineBreakMode="NoWrap" 
-                                        Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16" FontAttributes="Bold" />
-
-                                <Label 
-                                        Text="{Binding Fecha}" 
-                                        LineBreakMode="NoWrap" 
-                                        Style="{DynamicResource ListItemTextStyle}" 
-                                        FontSize="16"  />
-
-                            </StackLayout>
-
-
                         </StackLayout>
                     </ViewCell>
                 </DataTemplate>

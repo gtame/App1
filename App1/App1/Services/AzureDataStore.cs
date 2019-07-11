@@ -5,30 +5,57 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using App1.Models;
+using Xamarin.Forms;
 
 namespace App1.Services
 {
-    public class AzureDataStore : IDataStore<Item>
+    public class AzureDataStore : IDataStore 
     {
+
+        public static string UBICACION_SETTINGS = "LAST_UBICACION";
+
+
         HttpClient client;
-        IEnumerable<Item> items;
         IEnumerable<Movimiento> movimientos;
+
+        private string currentUser;
+        private string currentUbicacion;
 
         public AzureDataStore()
         {
             client = new HttpClient();
             client.BaseAddress = new Uri($"{App.AzureBackendUrl}/");
 
-            items = new List<Item>();
+            if (Application.Current.Properties.ContainsKey(UBICACION_SETTINGS))
+                currentUbicacion = (string)Application.Current.Properties[UBICACION_SETTINGS]; 
         }
 
         public async Task<IEnumerable<Bulto>> GetBultosByUbicacionAsync(string ubicacion)
         {
-            
-            var json = await client.GetStringAsync($"bultos?codubi={ubicacion}");
-            var bultos = await Task.Run(() => JsonConvert.DeserializeObject<IEnumerable<Bulto>>(json));
 
-            return bultos;
+
+            HttpResponseMessage response = await client.GetAsync($"bultos?codubi={ubicacion}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<Bulto>();
+            }
+            else
+
+            {
+                string json = await response.Content.ReadAsStringAsync();
+
+                var bultos = await Task.Run(() => JsonConvert.DeserializeObject<IEnumerable<Bulto>>(json));
+
+                if (currentUbicacion != ubicacion)
+                {
+                    currentUbicacion = ubicacion;
+                    //For Saving Value
+                    Application.Current.Properties[UBICACION_SETTINGS] = currentUbicacion;
+                    await Application.Current.SavePropertiesAsync();
+                }
+                return bultos;
+            }
 
         }
 
@@ -42,81 +69,34 @@ namespace App1.Services
 
         public async Task<Of> GetOfAsync(string ofs)
         {
-            var json = await client.GetStringAsync($"ofs?orden={ofs}");
-            var ofsDB = await Task.Run(() => JsonConvert.DeserializeObject<Of>(json));
-            return ofsDB;
+
+            HttpResponseMessage response = await client.GetAsync($"ofs?orden={ofs}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            else
+
+            {
+                string json = await response.Content.ReadAsStringAsync();
+                var ofsDB = await Task.Run(() => JsonConvert.DeserializeObject<Of>(json));
+                return ofsDB;
+            }
+
+             
         }
+
+
         public async Task<bool> LogonAsync(string username, string password)
         {
 
             var response = await client.GetAsync($"logon?username={username}&password={password}");
-
+            if (response.IsSuccessStatusCode)
+                currentUser = username;
             return response.IsSuccessStatusCode;
         }
 
-
-        #region Item
-        public async Task<IEnumerable<Item>> GetItemsAsync(bool forceRefresh = false)
-        {
-            if (forceRefresh)
-            {
-                var json = await client.GetStringAsync($"api/item");
-                items = await Task.Run(() => JsonConvert.DeserializeObject<IEnumerable<Item>>(json));
-            }
-
-            return items;
-        }
-
-        public async Task<Item> GetItemAsync(string id)
-        {
-            if (id != null)
-            {
-                var json = await client.GetStringAsync($"api/item/{id}");
-                return await Task.Run(() => JsonConvert.DeserializeObject<Item>(json));
-            }
-
-            return null;
-        }
-
-        public async Task<bool> AddItemAsync(Item item)
-        {
-            if (item == null)
-                return false;
-
-            var serializedItem = JsonConvert.SerializeObject(item);
-
-            var response = await client.PostAsync($"api/item", new StringContent(serializedItem, Encoding.UTF8, "application/json"));
-
-            return response.IsSuccessStatusCode;
-        }
-
-
-  
-        public async Task<bool> UpdateItemAsync(Item item)
-        {
-            if (item == null || item.Id == null)
-                return false;
-
-            var serializedItem = JsonConvert.SerializeObject(item);
-            var buffer = Encoding.UTF8.GetBytes(serializedItem);
-            var byteContent = new ByteArrayContent(buffer);
-
-            var response = await client.PutAsync(new Uri($"api/item/{item.Id}"), byteContent);
-
-            return response.IsSuccessStatusCode;
-        }
-
-        public async Task<bool> DeleteItemAsync(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-                return false;
-
-            var response = await client.DeleteAsync($"api/item/{id}");
-
-            return response.IsSuccessStatusCode;
-        }
-
-        #endregion
 
 
         #region Movimiento
@@ -125,7 +105,7 @@ namespace App1.Services
         {
             if (forceRefresh)
             {
-                var json = await client.GetStringAsync($"api/Movimiento");
+                var json = await client.GetStringAsync($"movimientos/{currentUbicacion}");
                 movimientos = await Task.Run(() => JsonConvert.DeserializeObject<IEnumerable<Movimiento>>(json));
             }
 
@@ -134,13 +114,20 @@ namespace App1.Services
 
         public async Task<Movimiento> GetMovimientoAsync(long id)
         {
-            if (id != null)
-            {
-                var json = await client.GetStringAsync($"api/Movimiento/{id}");
-                return await Task.Run(() => JsonConvert.DeserializeObject<Movimiento>(json));
-            }
+            
+            var json = await client.GetStringAsync($"movimiento/{id}");
+            return await  Task.Run
+            (
+                    () =>
+                    {
+                        List<Movimiento> movimientos = JsonConvert.DeserializeObject<List<Movimiento>>(json);
+                        return movimientos[0];
+                    }
+             );
 
-            return null;
+            
+
+
         }
 
         public async Task<bool> AddMovimientoAsync(Movimiento Movimiento)
@@ -149,35 +136,58 @@ namespace App1.Services
                 return false;
 
             var serializedMovimiento = JsonConvert.SerializeObject(Movimiento);
+            
 
-            var response = await client.PostAsync($"api/Movimiento", new StringContent(serializedMovimiento, Encoding.UTF8, "application/json"));
+            var response = await client.PostAsync($"addmovimiento/{currentUser}", new StringContent(serializedMovimiento, Encoding.UTF8, "application/json"));
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    string exception = await response.Content.ReadAsStringAsync();
+                    throw new System.Exception(exception);
+                }
 
-            return response.IsSuccessStatusCode;
-        }
-
-
-        public async Task<bool> UpdateMovimientoAsync(Movimiento Movimiento)
-        {
-            if (Movimiento == null || Movimiento.CodMov == 0)
                 return false;
+            }
+            else
+                return response.IsSuccessStatusCode;
 
-            var serializedMovimiento = JsonConvert.SerializeObject(Movimiento);
-            var buffer = Encoding.UTF8.GetBytes(serializedMovimiento);
-            var byteContent = new ByteArrayContent(buffer);
-
-            var response = await client.PutAsync(new Uri($"api/Movimiento/{Movimiento.CodMov}"), byteContent);
-
-            return response.IsSuccessStatusCode;
+     
         }
+
+
+        //public async Task<bool> UpdateMovimientoAsync(Movimiento Movimiento)
+        //{
+        //    if (Movimiento == null || Movimiento.CodMov == 0)
+        //        return false;
+
+        //    var serializedMovimiento = JsonConvert.SerializeObject(Movimiento);
+        //    var buffer = Encoding.UTF8.GetBytes(serializedMovimiento);
+        //    var byteContent = new ByteArrayContent(buffer);
+
+        //    var response = await client.PutAsync(new Uri($"api/Movimiento/{Movimiento.CodMov}"), byteContent);
+
+        //    return response.IsSuccessStatusCode;
+        //}
 
         public async Task<bool> DeleteMovimientoAsync(long id)
         {
             if (id==0)
                 return false;
 
-            var response = await client.DeleteAsync($"api/Movimiento/{id}");
+            var response = await client.DeleteAsync($"delmovimiento/{id}?username={currentUser}");
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    string exception = await response.Content.ReadAsStringAsync();
+                    throw new System.Exception(exception);
+                }
 
-            return response.IsSuccessStatusCode;
+                return false;
+            }
+            else
+                return response.IsSuccessStatusCode;
         }
         #endregion  
     }

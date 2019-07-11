@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -53,12 +54,18 @@ namespace App1.Models
 
     public class Of : BaseItem
     {
+
+           public string Articulo { get; set; }
     
     }
 
     public class Articulo : BaseItem
     {
+        public string Clase { get; set; }
 
+        public string Tipo { get; set; }
+
+        public string UM { get; set; }
     }
 
 
@@ -71,7 +78,7 @@ namespace App1.Models
 
     public class Bulto : BaseItem
     {
-        private decimal _cantidad;
+        private int _cantidad;
         private string _lote;
         private Articulo _articulo;
         private Ubicacion _ubicacion;
@@ -84,6 +91,7 @@ namespace App1.Models
             {
                 if (_articulo == null)
                     _articulo = new Articulo();
+
                 return _articulo;
             }
             set { SetProperty(ref _articulo, value); }
@@ -107,7 +115,7 @@ namespace App1.Models
             set { SetProperty(ref _lote, value); }
         }
 
-        public decimal Cantidad
+        public int Cantidad
         {
             get
             {
@@ -133,10 +141,14 @@ namespace App1.Models
     {
         private Of _ofs;
         private Bulto _bulto;
-        private decimal _cantidad;
+        private Ubicacion _ubicacion;
+        private int _cantidad;
         private string _um;
-       public long CodMov { get; set; }
 
+        [JsonProperty(PropertyName = "MovimientoId")]
+        public long CodMov { get; set; }
+
+         
         public Bulto Bulto
         {
             get
@@ -145,9 +157,46 @@ namespace App1.Models
                     _bulto = new Bulto();
                 return _bulto;
             }
-            set { SetProperty(ref _bulto, value); }
+            set { SetProperty(ref _bulto, value);
+                Cantidad = _bulto.Cantidad;
+                UM = _bulto.UM;
+            }
 
         }
+
+
+        public Ubicacion Ubicacion
+        {
+            get
+            {
+                if (_ubicacion == null)
+                    _ubicacion = new Ubicacion();
+                return _ubicacion;
+            }
+            set
+            {
+                SetProperty(ref _ubicacion, value);
+             
+            }
+        }
+
+         
+        [JsonProperty(PropertyName = "BultoId")]
+        public string BultoCode { get { return Bulto?.Codigo; } set { Bulto.Codigo = value; } }
+
+
+        [JsonProperty(PropertyName = "Orden")]
+        public string Orden { get { return Ofs?.Codigo; } set { Ofs.Codigo = value; } }
+
+        public string Articulo { get { return Bulto?.Articulo?.Codigo; } set {   Bulto.Articulo.Codigo=value; } }
+
+
+        public string Descripcion { get { return Bulto?.Articulo?.Descripcion; } set { Bulto.Articulo.Descripcion = value; } }
+
+
+
+        public string Lote { get { return Bulto?.Lote; } set { Bulto.Lote = value; } }
+
 
         public Of Ofs { get {
                 if (_ofs == null)
@@ -166,7 +215,7 @@ namespace App1.Models
             set { SetProperty(ref _um, value); }
         }
 
-        public decimal Cantidad
+        public int Cantidad
         {
             get
             {

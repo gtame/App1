@@ -13,13 +13,26 @@ namespace App1.ViewModels
 {
     public class ItemsViewModel : BaseViewModel
     {
-        public List<Movimiento> Items { get; set; }
+
+        private ObservableCollection<Movimiento> _list;
+
+        public ObservableCollection<Movimiento> Items
+        {
+            get { return _list; }
+            set
+            {
+                _list = value;
+                OnPropertyChanged();
+            }
+        }
+
+        
         public Command LoadItemsCommand { get; set; }
 
         public ItemsViewModel()
         {
             Title = "Ultimos movimientos";
-            Items = new List<Movimiento>();
+            _list = new ObservableCollection<Movimiento>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
             //MessagingCenter.Subscribe<NewItemPage, Movimiento>(this, "AddItem", async (obj, item) =>

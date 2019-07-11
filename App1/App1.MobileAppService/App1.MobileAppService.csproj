@@ -19,33 +19,42 @@
     </Reference>
     <Reference Include="IInterfaces">
       <HintPath>Logiteva\IInterfaces.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="log4net">
       <HintPath>Logiteva\log4net.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="LogiData">
       <HintPath>Logiteva\LogiData.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="Microsoft.ReportViewer.Common">
       <HintPath>Logiteva\Microsoft.ReportViewer.Common.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="Microsoft.ReportViewer.DataVisualization">
       <HintPath>Logiteva\Microsoft.ReportViewer.DataVisualization.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="Microsoft.ReportViewer.Design">
       <HintPath>Logiteva\Microsoft.ReportViewer.Design.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel">
       <HintPath>Logiteva\Microsoft.ReportViewer.ProcessingObjectModel.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="Microsoft.ReportViewer.WinForms">
       <HintPath>Logiteva\Microsoft.ReportViewer.WinForms.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="Microsoft.SqlServer.Types">
       <HintPath>Logiteva\Microsoft.SqlServer.Types.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>Logiteva\Newtonsoft.Json.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>Logiteva\nunit.framework.dll</HintPath>

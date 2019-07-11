@@ -8,9 +8,8 @@ namespace App1.ViewModels
 {
     public class LoginViewModel : BaseViewModel
     {
+ 
 
-        public  Action SuccessLogin;
-        public Action DisplayInvalidLoginPrompt; 
         private string username;
         public string UserName
         {
@@ -41,11 +40,11 @@ namespace App1.ViewModels
             bool isLogged = await DataStore.LogonAsync(UserName, Password);
             if (!isLogged)
             {
-                DisplayInvalidLoginPrompt();
+                await AlertHelper.ShowError("Invalid Login, try again");
             }
             else
             {
-                SuccessLogin();
+                MessagingCenter.Send<object>(this, App.EVENT_LAUNCH_MAIN_PAGE);
             }
         }
 

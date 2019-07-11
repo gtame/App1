@@ -23,6 +23,8 @@ namespace App1.Views
             InitializeComponent();
 
             BindingContext = viewModel = new ItemsViewModel();
+
+ 
         }
 
         async void OnItemSelected(object sender, SelectedItemChangedEventArgs args)
@@ -45,9 +47,8 @@ namespace App1.Views
         protected override void OnAppearing()
         {
             base.OnAppearing();
-
-            if (viewModel.Items.Count == 0)
-                viewModel.LoadItemsCommand.Execute(null);
+            ItemsListView.RefreshCommand.Execute(null);
+            //viewModel.LoadItemsCommand.Execute(null);
         }
     }
 }
