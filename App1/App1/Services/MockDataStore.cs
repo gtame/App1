@@ -122,6 +122,17 @@ namespace App1.Services
 
         }
 
+
+
+        public async Task<IEnumerable<Bulto>> GetBultosByUbicacionAsync(string ubicacion,string articulo,string lote)
+        {
+            await Task.Delay(2000);
+            //arg.Ubicacion.Codigo == ubicacion
+            return await Task.FromResult<IEnumerable<Bulto>>(bultos.Where((Bulto arg) => arg.Ubicacion.Codigo == ubicacion && arg.Lote==lote && arg.Articulo.Codigo==articulo));
+
+        }
+
+
         public async Task<Articulo> GetArticuloAsync(string articulo)
         {
             
@@ -190,6 +201,13 @@ namespace App1.Services
         {
             movimientos.Add(Movimiento);
 
+            return await Task.FromResult(true);
+        }
+
+
+        public  async Task<bool> Reubicar(string ubicacion, int bulto)
+        {
+            bultos[bulto].Ubicacion.Codigo = ubicacion;
             return await Task.FromResult(true);
         }
 

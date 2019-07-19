@@ -4,7 +4,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:App1.Extensions;assembly=App1"
-             x:Class="App1.Views.ConsumoPage"
+             x:Class="App1.Views.ConsumoPagePorArticulo"
              Title="{Binding Title}"
              >
 
@@ -22,51 +22,49 @@
         <ScrollView>
             <StackLayout Spacing="0" Padding="0"  >
 
+                <!-- Orden -->
                 <StackLayout Orientation="Horizontal" >
                     <Label Text="Orden:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
                     <!-- <Entry x:Name="txtOrden" HorizontalOptions="FillAndExpand" Keyboard="Numeric"  Text="{Binding Item.Ofs.Codigo }"  IsEnabled="{Binding IsNewMode}" Placeholder="[Orden]" PlaceholderColor="Red"     local:FocusExtension.Focus="{Binding OrdenIsFocused}"   /> -->
-                    <Entry x:Name="txtOrden" HorizontalOptions="FillAndExpand" Keyboard="Numeric"   Text="{Binding Item.Ofs.Codigo }"  IsEnabled="{Binding IsNewMode}" Placeholder="[Orden]" PlaceholderColor="Red"     local:FocusExtension.Focus="{Binding OrdenIsFocused}"   Completed="TxtOrden_Completed" />
+                    <Entry x:Name="txtOrden" HorizontalOptions="FillAndExpand" Keyboard="Numeric"   Text="{Binding Item.Ofs.Codigo }"  IsEnabled="{Binding IsNewMode}" Placeholder="[Orden]" PlaceholderColor="Red"     local:FocusExtension.Focus="{Binding OrdenIsFocused}"  ReturnCommand="{Binding GetOrdenCommand}" ReturnCommandParameter="{Binding Source={x:Reference txtOrden},  Path=Text}"   />
                 </StackLayout>
-                
-
                 <StackLayout Orientation="Horizontal" >
                     <Entry   HorizontalOptions="FillAndExpand" Text="{Binding Item.Ofs.Descripcion}" Placeholder="[No hay orden seleccionada]"  IsEnabled="false"/>
                 </StackLayout>
 
+                
+                <!-- Ubicacion-->
                 <StackLayout Orientation="Horizontal">
                     <Label Text="Ubicacion:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
-
-                    <!-- <Entry  x:Name="txtUbicacion" HorizontalOptions="FillAndExpand" Keyboard="Numeric"  Text="{Binding Item.Bulto.Ubicacion.Codigo}" Placeholder="[Ubicacion]" PlaceholderColor="Red"    local:FocusExtension.Focus="{Binding UbicacionIsFocused}"  IsEnabled="{Binding IsNewMode}" />  -->
-                    <Entry  x:Name="txtUbicacion" HorizontalOptions="FillAndExpand"    Text="{Binding Item.Bulto.Ubicacion.Codigo}" Placeholder="[Ubicacion]" PlaceholderColor="Red"    local:FocusExtension.Focus="{Binding UbicacionIsFocused}"  IsEnabled="{Binding IsNewMode}"  Completed="TxtUbicacion_Completed" />
-                    
+                    <Entry x:Name="txtUbicacion"   HorizontalOptions="FillAndExpand"    Text="{Binding Item.Ubicacion.Codigo}" Placeholder="[Ubicacion]"  IsEnabled="{Binding IsNewMode}"  ReturnCommand="{Binding GetUbicacionCommand}" ReturnCommandParameter="{Binding Source={x:Reference txtUbicacion},  Path=Text}"  />
                 </StackLayout>
-
-                <StackLayout Orientation="Vertical" >
-
-                    <Entry HorizontalOptions="FillAndExpand"  Text="{Binding Item.Bulto.Ubicacion.Descripcion}" Placeholder="[No hay ubicacion seleccionada]"  IsEnabled="false"/>
-                    <StackLayout Orientation="Horizontal" >
-                        <Entry HorizontalOptions="FillAndExpand" Text="{Binding Item.Bulto.Articulo.Codigo}" Placeholder="[Articulo]"  IsEnabled="false"/>
-                        <Entry HorizontalOptions="FillAndExpand" Text="{Binding Item.Bulto.Lote}" Placeholder="[Lote]"  IsEnabled="false"/>
-                    </StackLayout>
-
-                    <Entry HorizontalOptions="FillAndExpand" Text="{Binding Item.Bulto.Articulo.Descripcion }" Placeholder="[Articulo seleccionado]"  IsEnabled="false"/>
-                </StackLayout>
-
-                <StackLayout Orientation="Horizontal">
-                    <Label   Text="Cantidad:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
-                    <Entry x:Name="txtCantidad" HorizontalOptions="FillAndExpand" Text="{Binding Item.Cantidad}"  Keyboard="Numeric" Placeholder="[Cantidad]" PlaceholderColor="Red"    IsEnabled="{Binding IsNewMode}" local:FocusExtension.Focus="{Binding CantidadIsFocused}"/>
-                    <Label   Text="{Binding Item.Bulto.Articulo.UM}"  FontSize="Medium" HorizontalOptions="FillAndExpand" VerticalOptions="Center" WidthRequest="100" />
-                </StackLayout>
-
-
-
-                <Button Command="{Binding SubmitCommand}"   Margin="5" Text="Registrar"  FontSize="Large" HorizontalOptions="FillAndExpand"   IsVisible="{Binding IsNewMode}"  BackgroundColor="{StaticResource Primary}" TextColor="White" />
-
-                <Button Command="{Binding CleanCommand}"    Margin="5" Text="Limpiar"  FontSize="Large" HorizontalOptions="FillAndExpand" IsVisible="{Binding IsNewMode}" BackgroundColor="{StaticResource Primary}" TextColor="White"  />
-
-                <Button   Command="{Binding DeleteCommand}"   Margin="5" Text="Deshacer"  FontSize="Large" HorizontalOptions="FillAndExpand" IsVisible="{Binding IsViewMode}" BackgroundColor="{StaticResource Primary}" TextColor="White"  />
 
                 
+                
+                <!-- Bulto-Articulo -->
+                <StackLayout Orientation="Vertical" >
+
+                    <Entry HorizontalOptions="FillAndExpand"  Text="{Binding Item.Ubicacion.Descripcion}" Placeholder="[No hay ubicacion seleccionada]"  IsEnabled="false"/>
+                    <StackLayout Orientation="Horizontal" >
+                        <Entry HorizontalOptions="FillAndExpand" x:Name="txtArticulo" Text="{Binding Item.Bulto.Articulo.Codigo}" Placeholder="[Articulo]"  PlaceholderColor="Red"  local:FocusExtension.Focus="{Binding ArticuloIsFocused}"   ReturnCommand="{Binding GetArticuloCommand}" ReturnCommandParameter="{Binding Source={x:Reference txtArticulo},  Path=Text}" />
+                        <Entry HorizontalOptions="FillAndExpand" x:Name="txtLote" Text="{Binding Item.Bulto.Lote}" Placeholder="[Lote]"  local:FocusExtension.Focus="{Binding LoteIsFocused}"   ReturnCommand="{Binding GetLoteCommand}" ReturnCommandParameter="{Binding Source={x:Reference txtLote},  Path=Text}"  />
+                    </StackLayout>
+
+                    <Entry HorizontalOptions="FillAndExpand" Text="{Binding Item.Bulto.Articulo.Descripcion}" Placeholder="[Articulo seleccionado]"  IsEnabled="false"/>
+                </StackLayout>
+
+                
+                <!-- cantidad -->
+                <StackLayout Orientation="Horizontal">
+                    <Label   Text="Cantidad:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
+                    <Entry x:Name="txtCantidad" HorizontalOptions="FillAndExpand" Text="{Binding NullableQty}"  Keyboard="Numeric" Placeholder="[Cantidad]" PlaceholderColor="Red"    IsEnabled="{Binding IsNewMode}" local:FocusExtension.Focus="{Binding CantidadIsFocused}"/>
+                    <Label  Text="{Binding Item.Bulto.TotalQty}"   FontSize="Medium" HorizontalOptions="FillAndExpand" VerticalOptions="Center" WidthRequest="100" />
+                </StackLayout>
+
+
+                <!-- Command -->
+                <Button Command="{Binding SubmitCommand}"   Margin="5" Text="Registrar"  FontSize="Large" HorizontalOptions="FillAndExpand"   IsVisible="{Binding IsNewMode}"  BackgroundColor="{StaticResource Primary}" TextColor="White" />
+                <Button Command="{Binding CleanCommand}"    Margin="5" Text="Limpiar"  FontSize="Large" HorizontalOptions="FillAndExpand" IsVisible="{Binding IsNewMode}" BackgroundColor="{StaticResource Primary}" TextColor="White"  />
 
             </StackLayout>
 

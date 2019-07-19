@@ -4,7 +4,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:App1.Extensions;assembly=App1"
-             x:Class="App1.Views.ConsumoPage"
+             x:Class="App1.Views.ReubicarPage"
              Title="{Binding Title}"
              >
 
@@ -22,17 +22,7 @@
         <ScrollView>
             <StackLayout Spacing="0" Padding="0"  >
 
-                <StackLayout Orientation="Horizontal" >
-                    <Label Text="Orden:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
-                    <!-- <Entry x:Name="txtOrden" HorizontalOptions="FillAndExpand" Keyboard="Numeric"  Text="{Binding Item.Ofs.Codigo }"  IsEnabled="{Binding IsNewMode}" Placeholder="[Orden]" PlaceholderColor="Red"     local:FocusExtension.Focus="{Binding OrdenIsFocused}"   /> -->
-                    <Entry x:Name="txtOrden" HorizontalOptions="FillAndExpand" Keyboard="Numeric"   Text="{Binding Item.Ofs.Codigo }"  IsEnabled="{Binding IsNewMode}" Placeholder="[Orden]" PlaceholderColor="Red"     local:FocusExtension.Focus="{Binding OrdenIsFocused}"   Completed="TxtOrden_Completed" />
-                </StackLayout>
                 
-
-                <StackLayout Orientation="Horizontal" >
-                    <Entry   HorizontalOptions="FillAndExpand" Text="{Binding Item.Ofs.Descripcion}" Placeholder="[No hay orden seleccionada]"  IsEnabled="false"/>
-                </StackLayout>
-
                 <StackLayout Orientation="Horizontal">
                     <Label Text="Ubicacion:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
 
@@ -54,19 +44,22 @@
 
                 <StackLayout Orientation="Horizontal">
                     <Label   Text="Cantidad:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
-                    <Entry x:Name="txtCantidad" HorizontalOptions="FillAndExpand" Text="{Binding Item.Cantidad}"  Keyboard="Numeric" Placeholder="[Cantidad]" PlaceholderColor="Red"    IsEnabled="{Binding IsNewMode}" local:FocusExtension.Focus="{Binding CantidadIsFocused}"/>
+                    <Entry  IsEnabled="false" HorizontalOptions="FillAndExpand" Text="{Binding Item.Bulto.Cantidad}"  Keyboard="Numeric" Placeholder="[Cantidad]" PlaceholderColor="Red"   />
                     <Label   Text="{Binding Item.Bulto.Articulo.UM}"  FontSize="Medium" HorizontalOptions="FillAndExpand" VerticalOptions="Center" WidthRequest="100" />
                 </StackLayout>
 
 
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Ubicacion:" FontSize="Medium" HorizontalOptions="Start" VerticalOptions="Center" WidthRequest="100" />
 
-                <Button Command="{Binding SubmitCommand}"   Margin="5" Text="Registrar"  FontSize="Large" HorizontalOptions="FillAndExpand"   IsVisible="{Binding IsNewMode}"  BackgroundColor="{StaticResource Primary}" TextColor="White" />
+                    <!-- <Entry  x:Name="txtUbicacion" HorizontalOptions="FillAndExpand" Keyboard="Numeric"  Text="{Binding Item.Bulto.Ubicacion.Codigo}" Placeholder="[Ubicacion]" PlaceholderColor="Red"    local:FocusExtension.Focus="{Binding UbicacionIsFocused}"  IsEnabled="{Binding IsNewMode}" />  -->
+                    <Entry  HorizontalOptions="FillAndExpand"   x:Name="txtNewUbicacion"  Text="{Binding NewUbicacion}" Placeholder="[Ubicacion]" PlaceholderColor="Red"    local:FocusExtension.Focus="{Binding NewUbicacionIsFocused}"  IsEnabled="{Binding IsNewMode}"   />
 
-                <Button Command="{Binding CleanCommand}"    Margin="5" Text="Limpiar"  FontSize="Large" HorizontalOptions="FillAndExpand" IsVisible="{Binding IsNewMode}" BackgroundColor="{StaticResource Primary}" TextColor="White"  />
+                </StackLayout>
 
-                <Button   Command="{Binding DeleteCommand}"   Margin="5" Text="Deshacer"  FontSize="Large" HorizontalOptions="FillAndExpand" IsVisible="{Binding IsViewMode}" BackgroundColor="{StaticResource Primary}" TextColor="White"  />
 
-                
+                <Button Command="{Binding CleanCommand}"    Margin="5" Text="Limpiar"  FontSize="Large" HorizontalOptions="FillAndExpand" IsVisible="{Binding IsReubicarMode}" BackgroundColor="{StaticResource Primary}" TextColor="White"  />
+                <Button   Command="{Binding ReubicarCommand}"   Margin="5" Text="Reubicar"  FontSize="Large" HorizontalOptions="FillAndExpand" IsVisible="{Binding IsReubicarMode}" BackgroundColor="{StaticResource Primary}" TextColor="White"  />
 
             </StackLayout>
 

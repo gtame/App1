@@ -15,6 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\ConsumoPagePorArticulo.xaml.cs">
+      <DependentUpon>ConsumoPagePorArticulo.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\ReubicarPage.xaml.cs">
+      <DependentUpon>ReubicarPage.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\ConsumoPage.xaml.cs">
       <DependentUpon>ConsumoPage.xaml</DependentUpon>
     </Compile>

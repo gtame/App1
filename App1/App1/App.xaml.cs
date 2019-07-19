@@ -7,13 +7,14 @@ using App1.Views;
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace App1
 {
-    public partial class App : Application,  IApplicationHandler
+    public partial class App : Application, IApplicationHandler, ICodeReader
     {
 
         public static string EVENT_LAUNCH_LOGIN_PAGE = "EVENT_LAUNCH_LOGIN_PAGE";
         public static string EVENT_LAUNCH_MAIN_PAGE = "EVENT_LAUNCH_MAIN_PAGE";
         public static string EVENT_LAUNCH_BULTOS_PAGE = "EVENT_LAUNCH_SELECT_BULTOS_PAGE";
         public static string EVENT_SELECTED_BULTO = "EVENT_SELECTED_BULTO";
+        public static string EVENT_CODEBAR_READ = "EVENT_CODEBAR_READED";
 
 
         //TODO: Replace with *.azurewebsites.net url after deploying backend to Azure
@@ -34,7 +35,8 @@ namespace App1
             DependencyService.Register<AlertHelper>();
 
 
-            AppDomain.CurrentDomain.UnhandledException += (sender, args) => {
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
                 System.Exception ex = (System.Exception)args.ExceptionObject;
                 Console.WriteLine(ex);
             };
@@ -70,13 +72,20 @@ namespace App1
             // Handle when your app resumes
         }
 
-        public  void Logout()
+        public void Logout()
         {
             MessagingCenter.Send<object>(this, App.EVENT_LAUNCH_LOGIN_PAGE);
         }
 
-    
 
- 
+        void ICodeReader.OnReadCodeBar(string text)
+        {
+            //envia mensaje a la aplicacion de lectura de codigo de barras ;)
+            MessagingCenter.Send<string>(text, App.EVENT_CODEBAR_READ);
+
         }
+
+
+
+    }
 }

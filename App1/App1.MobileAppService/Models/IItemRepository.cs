@@ -95,7 +95,7 @@ namespace App1.Models
         public string Articulo { get; set; }
         public string Descripcion { get; set; }
 
-
+        public Ubicacion Ubicacion { get; set; }
 
         public static Orden Parse(LogiData.Data.dsOfs.OFSRow row)
         {

@@ -56,7 +56,9 @@ namespace App1.Models
     {
 
            public string Articulo { get; set; }
-    
+
+           public Ubicacion Ubicacion { get; set; }
+
     }
 
     public class Articulo : BaseItem
@@ -121,7 +123,7 @@ namespace App1.Models
             {
                 return _cantidad;
             }
-            set { SetProperty(ref _cantidad, value); }
+            set { SetProperty(ref _cantidad, value); OnPropertyChanged("TotalQty"); }
         }
 
         public string UM
@@ -131,7 +133,17 @@ namespace App1.Models
             {
                 return _um;
             }
-            set { SetProperty(ref _um, value); }
+            set { SetProperty(ref _um, value); OnPropertyChanged("TotalQty"); }
+        }
+
+
+        public string TotalQty
+        {
+            get
+            {
+                return string.Format("{0} {1}", Cantidad, Articulo.UM);
+            }
+
         }
     }
 
@@ -142,7 +154,7 @@ namespace App1.Models
         private Of _ofs;
         private Bulto _bulto;
         private Ubicacion _ubicacion;
-        private int _cantidad;
+        private int? _cantidad;
         private string _um;
 
         [JsonProperty(PropertyName = "MovimientoId")]
@@ -158,7 +170,7 @@ namespace App1.Models
                 return _bulto;
             }
             set { SetProperty(ref _bulto, value);
-                Cantidad = _bulto.Cantidad;
+                //Cantidad = _bulto.Cantidad;
                 UM = _bulto.UM;
             }
 
@@ -180,24 +192,43 @@ namespace App1.Models
             }
         }
 
-         
+
+
+
+        #region JsonProperties - para comunicar con API REST
+
+        /*
+                 {
+  "movimientoId": 0,
+  "bultoId": 0,
+  "orden": 0,
+  "articulo": "string",
+  "lote": "string",
+  "descripcion": "string",
+  "cantidad": 0,
+  "fecha": "2019-07-08T08:12:21.988Z",
+  "userName": "string"
+}
+             
+             */
         [JsonProperty(PropertyName = "BultoId")]
-        public string BultoCode { get { return Bulto?.Codigo; } set { Bulto.Codigo = value; } }
+        public string BultoCode { get { return Bulto?.Codigo; } }
 
 
         [JsonProperty(PropertyName = "Orden")]
-        public string Orden { get { return Ofs?.Codigo; } set { Ofs.Codigo = value; } }
+        public string OrdenCode { get { return Ofs?.Codigo; } }
 
-        public string Articulo { get { return Bulto?.Articulo?.Codigo; } set {   Bulto.Articulo.Codigo=value; } }
-
-
-        public string Descripcion { get { return Bulto?.Articulo?.Descripcion; } set { Bulto.Articulo.Descripcion = value; } }
+        public string Articulo { get { return Bulto?.Articulo?.Codigo; }  }
 
 
+        public string Descripcion { get { return Bulto?.Articulo?.Descripcion; } }
 
-        public string Lote { get { return Bulto?.Lote; } set { Bulto.Lote = value; } }
 
 
+        public string Lote { get { return Bulto?.Lote; }  }
+        #endregion
+
+         
         public Of Ofs { get {
                 if (_ofs == null)
                     _ofs = new Of();
@@ -215,7 +246,7 @@ namespace App1.Models
             set { SetProperty(ref _um, value); }
         }
 
-        public int Cantidad
+        public int? Cantidad
         {
             get
             {

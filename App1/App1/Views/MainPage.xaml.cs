@@ -44,6 +44,13 @@ namespace App1.Views
                     case (int)MenuItemType.Consumo:
                         MenuPages.Add(id, new NavigationPage(new ConsumoPage()));
                         break;
+
+                    case (int)MenuItemType.ConsumoXArticulo:
+                        MenuPages.Add(id, new NavigationPage(new ConsumoPagePorArticulo()));
+                        break;
+                    case (int)MenuItemType.Reubicar:
+                        MenuPages.Add(id, new NavigationPage(new ReubicarPage()));
+                        break;
                     case (int)MenuItemType.Logout:
                         {
 

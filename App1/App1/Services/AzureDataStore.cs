@@ -59,18 +59,39 @@ namespace App1.Services
 
         }
 
+        public async Task<IEnumerable<Bulto>> GetBultosByUbicacionAsync(string ubicacion,string articulo,string lote)
+        {
+
+            //bultosxlote?codubi=33044610&articulo=0206084&lote=CON0544581
+            HttpResponseMessage response = await client.GetAsync($"bultosxlote?codubi={ubicacion}&articulo={articulo}&lote={lote}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<Bulto>();
+            }
+            else
+
+            {
+                string json = await response.Content.ReadAsStringAsync();
+
+                var bultos = await Task.Run(() => JsonConvert.DeserializeObject<IEnumerable<Bulto>>(json));
+
+                if (currentUbicacion != ubicacion)
+                {
+                    currentUbicacion = ubicacion;
+                    //For Saving Value
+                    Application.Current.Properties[UBICACION_SETTINGS] = currentUbicacion;
+                    await Application.Current.SavePropertiesAsync();
+                }
+                return bultos;
+            }
+
+        }
 
         public async Task<Articulo> GetArticuloAsync(string articulo)
         {
-            var json = await client.GetStringAsync($"articulo?sku={articulo}");
-            var artDB = await Task.Run(() => JsonConvert.DeserializeObject<Articulo>(json));
-            return artDB;
-        }
+            HttpResponseMessage response  =await client.GetAsync($"articulo?sku={articulo}");
 
-        public async Task<Of> GetOfAsync(string ofs)
-        {
-
-            HttpResponseMessage response = await client.GetAsync($"ofs?orden={ofs}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -80,11 +101,26 @@ namespace App1.Services
 
             {
                 string json = await response.Content.ReadAsStringAsync();
+                var artDB = await Task.Run(() => JsonConvert.DeserializeObject<Articulo>(json));
+                return artDB;
+
+            }
+           
+        }
+
+        public async Task<Of> GetOfAsync(string ofs)
+        {
+            HttpResponseMessage response = await client.GetAsync($"ofs?orden={ofs}");
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            else
+            {
+                string json = await response.Content.ReadAsStringAsync();
                 var ofsDB = await Task.Run(() => JsonConvert.DeserializeObject<Of>(json));
                 return ofsDB;
             }
-
-             
         }
 
 
@@ -154,8 +190,26 @@ namespace App1.Services
 
      
         }
+        
+        public async Task<bool> Reubicar(string ubicacion, int bulto)
+        {
+            if (bulto == 0)
+                return false;
 
+            var response = await client.GetAsync($"reubicar/{ubicacion}/{bulto}/{currentUser}");
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    string exception = await response.Content.ReadAsStringAsync();
+                    throw new System.Exception(exception);
+                }
 
+                return false;
+            }
+            else
+                return response.IsSuccessStatusCode;
+        }
         //public async Task<bool> UpdateMovimientoAsync(Movimiento Movimiento)
         //{
         //    if (Movimiento == null || Movimiento.CodMov == 0)

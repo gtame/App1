@@ -12,16 +12,15 @@ using Xamarin.Forms.Xaml;
 namespace App1.Views
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class ConsumoPage : ContentPage
+	public partial class ReubicarPage : ContentPage
 	{
      
 
         MovimientoViewModel model;
 
-        public ConsumoPage()
+        public ReubicarPage()
 		{
-            model = new MovimientoViewModel(); 
-
+            model = new MovimientoViewModel(null, MovementType.Reubicar);
             this.BindingContext = model;
             InitializeComponent ();
             MessagingCenter.Subscribe<IEnumerable<Bulto>>(this, App.EVENT_LAUNCH_BULTOS_PAGE, async b =>
@@ -39,12 +38,12 @@ namespace App1.Views
             MessagingCenter.Subscribe<Bulto>(this, App.EVENT_SELECTED_BULTO, async b =>
             {
                 model.Item.Bulto = b;
-                txtCantidad.Focus();
+                txtNewUbicacion.Focus();
             });
         }
 
 
-        public ConsumoPage(Movimiento movimiento)
+        public ReubicarPage(Movimiento movimiento)
         {
             model = new MovimientoViewModel(movimiento);
             this.BindingContext = model;
@@ -58,9 +57,5 @@ namespace App1.Views
              await model.GetBultosByUbicacionAsync(txtUbicacion.Text);
         }
 
-        private async void TxtOrden_Completed(object sender, EventArgs e)
-        {
-            await model.GetOfAsync(txtOrden.Text);
-        }
     }
 }

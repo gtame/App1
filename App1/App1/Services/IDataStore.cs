@@ -16,11 +16,14 @@ namespace App1.Services
 
         Task<IEnumerable<Bulto>> GetBultosByUbicacionAsync(string ubicacion);
 
+
+        Task<IEnumerable<Bulto>> GetBultosByUbicacionAsync(string ubicacion,string articulo,string lote);
+
         Task<bool> LogonAsync(string username, string password);
 
-   
 
 
+        Task<bool> Reubicar(string ubicacion, int bulto );
         Task<bool> AddMovimientoAsync(Movimiento item);
       //  Task<bool> UpdateMovimientoAsync(Movimiento item);
         Task<bool> DeleteMovimientoAsync(long id);

@@ -10,6 +10,8 @@ namespace App1.Models
         Historico,
         Acercade,
         Consumo,
+        ConsumoXArticulo,
+        Reubicar,
         Logout
     }
     public class HomeMenuItem

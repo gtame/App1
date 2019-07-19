@@ -19,6 +19,8 @@ namespace App1.Views
             menuItems = new List<HomeMenuItem>
             {
                 new HomeMenuItem {Id = MenuItemType.Consumo, Title="Consumo" },
+                new HomeMenuItem {Id= MenuItemType.ConsumoXArticulo , Title="ConsumoxArtic"},
+                new HomeMenuItem {Id = MenuItemType.Reubicar, Title="Reubicar" },
                 new HomeMenuItem {Id = MenuItemType.Historico, Title="Historico" },
                 new HomeMenuItem {Id = MenuItemType.Acercade, Title="Acerca de" },
                 new HomeMenuItem {Id = MenuItemType.Logout, Title="Logout" }

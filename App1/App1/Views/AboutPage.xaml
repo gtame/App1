@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<v:BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="App1.Views.AboutPage"
              xmlns:vm="clr-namespace:App1.ViewModels"
+             xmlns:v="clr-namespace:App1.Views"
              Title="{Binding Title}">
     
     <ContentPage.BindingContext>
@@ -73,4 +74,4 @@
             </StackLayout>
         </ScrollView>
     </Grid>
-</ContentPage>
+</v:BaseContentPage>

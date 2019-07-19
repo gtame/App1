@@ -46,6 +46,34 @@ namespace App1.Controllers
         }
 
 
+        [HttpGet("bultosxlote")]
+        public IActionResult GetByCodUbicacion(string codubi,string articulo,string lote)
+        {
+
+            dsAlmacen.BULTOSDataTable dtBultos = new dsAlmacen.BULTOSDataTable();
+            dtBultos.FillByUbicacion(codubi);
+            if (dtBultos.Count == 0)
+                return NotFound();
+            else
+            {
+
+                List<Bulto> lstMov = new List<Bulto>();
+                foreach (dsAlmacen.BULTOSRow row in dtBultos.Rows)
+                {
+                    //Buscamos los bultos de esa ubicacion que contengan ese articulo -- lote
+                    if (!row.IsLOTENull()  && row.LOTE==lote && row.ARTICULO==articulo)
+                            lstMov.Add(ParseBulto(row));
+                }
+
+
+                string JSONresult;
+                JSONresult = JsonConvert.SerializeObject(lstMov);
+                return StatusCode(200, JSONresult);
+            }
+
+        }
+
+
         [HttpGet("bultos")]
         public IActionResult GetByCodUbicacion(string codubi)
         {
@@ -89,7 +117,7 @@ namespace App1.Controllers
 
 
         [HttpGet("ofs")]
-        public IActionResult GetOfsByCodigo(string orden)
+        public  IActionResult GetOfsByCodigo(string orden)
         {
             dsOfs.OFSDataTable dtOfs = new dsOfs.OFSDataTable();
             dtOfs.FillByOfs(int.Parse(orden));
@@ -98,11 +126,50 @@ namespace App1.Controllers
             else
             {
                 string JSONresult;
-                JSONresult = JsonConvert.SerializeObject(Orden.Parse( dtOfs[0]));
+                JSONresult =   JsonConvert.SerializeObject(ParseOrden(dtOfs[0]));
+
+
+
+
                 return StatusCode(200, JSONresult);
             }
         }
 
+
+        private   Orden ParseOrden (dsOfs.OFSRow row)
+        {
+            string centro = null;
+            string ubicacion = null;
+            Orden ofs = Orden.Parse(row);
+            //Obtenemos maquina desde ESP Planning
+            using (System.Data.SqlClient.SqlConnection sqlConnection = new System.Data.SqlClient.SqlConnection(Configuration.GetConnectionString("esp_data")))
+            {
+
+                sqlConnection.Open();
+                using (System.Data.SqlClient.SqlCommand command = new System.Data.SqlClient.SqlCommand())
+                {
+                    command.Connection = sqlConnection;
+                    command.CommandText = @"SELECT [CENTRO] FROM [dbo].[OFS_PLANIFICACION_ACOND] WHERE ARTICULO=@ARTICULO AND LOTE=@LOTE";
+                    command.Parameters.Add(new System.Data.SqlClient.SqlParameter("ARTICULO", SqlDbType.NVarChar, 50));
+                    command.Parameters.Add(new System.Data.SqlClient.SqlParameter("LOTE", SqlDbType.NVarChar, 50));
+                    command.Parameters["ARTICULO"].Value = ofs.Articulo;
+                    command.Parameters["LOTE"].Value = row.LOTE;
+
+                    centro = (string)command.ExecuteScalar();
+                }
+            }
+
+            //--Mapping entre ubicaciones y centros
+            ubicacion = "M1";
+
+            dsAlmacen.UBICACIONESDataTable dtUbicacion = new dsAlmacen.UBICACIONESDataTable();
+            dtUbicacion.FillByCODUBI(ubicacion);
+
+            if (dtUbicacion.Count == 1)
+                ofs.Ubicacion = Ubicacion.Parse(dtUbicacion[0]);
+            
+            return ofs;
+        }
 
         [HttpGet("movimiento/{movimiento}")]
         public IActionResult GetMovimientoByCodigo(int movimiento)
@@ -262,6 +329,32 @@ namespace App1.Controllers
             }
             return Ok(codMov);
         }
+
+
+
+        [HttpGet("reubicar/{ubicacion}/{bulto}/{username}")]
+        public IActionResult Reubicar(string ubicacion, int bulto,string username)
+        {
+            int codMov = 0;
+            try
+            {
+
+                dsAlmacen.BULTOSDataTable dtBultos = new dsAlmacen.BULTOSDataTable();
+                dtBultos.FillByCODBULTO(bulto);
+                if (dtBultos.Count==1)
+                {
+                     LogiData.GestionAlmacen.Reubicar(bulto,ubicacion,dtBultos[0].CANTIDAD,  username);
+                }
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message.ToString());
+            }
+            return Ok(codMov);
+        }
+
+
 
         //[HttpPut]
         //public IActionResult Edit([FromBody] Item item)

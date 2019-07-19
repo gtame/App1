@@ -12,13 +12,13 @@ using Xamarin.Forms.Xaml;
 namespace App1.Views
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class ConsumoPage : ContentPage
+	public partial class ConsumoPagePorArticulo : ContentPage
 	{
      
 
         MovimientoViewModel model;
 
-        public ConsumoPage()
+        public ConsumoPagePorArticulo()
 		{
             model = new MovimientoViewModel(); 
 
@@ -44,7 +44,7 @@ namespace App1.Views
         }
 
 
-        public ConsumoPage(Movimiento movimiento)
+        public ConsumoPagePorArticulo(Movimiento movimiento)
         {
             model = new MovimientoViewModel(movimiento);
             this.BindingContext = model;
@@ -53,14 +53,5 @@ namespace App1.Views
         }
 
    
-        private async void TxtUbicacion_Completed(object sender, EventArgs e)
-        {
-             await model.GetBultosByUbicacionAsync(txtUbicacion.Text);
-        }
-
-        private async void TxtOrden_Completed(object sender, EventArgs e)
-        {
-            await model.GetOfAsync(txtOrden.Text);
-        }
     }
 }
